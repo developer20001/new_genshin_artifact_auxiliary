@@ -1,9 +1,7 @@
 '''设置窗口，自定义词条收益权重'''
 
-import os, json
-
-import data
-
+import os
+from data import data
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
@@ -13,9 +11,6 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QDoubleSpinBox
 )
-
-entryArray = ["暴击率", "暴击伤害", "元素精通", "元素充能效率", "生命值", "攻击力", "防御力"]
-
 
 class SetWindow(QWidget):
 
@@ -41,7 +36,7 @@ class SetWindow(QWidget):
         # 显示得分权重
         self.entryName = []
         self.entryNum = []
-        for keyName in entryArray:
+        for keyName in data.getEntryArray():
             nameText = QLabel(keyName)
             self.entryName.append(nameText)
 
@@ -84,6 +79,7 @@ class SetWindow(QWidget):
 
     def updateUI(self):
         herConfig = data.getCharacters()
+        entryArray = data.getEntryArray()
         # 兼容数据异常情况
         if not self.character in herConfig or herConfig[self.character]=={}:
             self.heroNameLabel2.setText("请正确的选择角色")

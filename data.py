@@ -13,6 +13,7 @@ suitConfig_path = "src/suitConfig.json"
 archive_path = folder + '/archive.json'
 
 # 数据常量
+entryArray = ["暴击率", "暴击伤害", "元素精通", "元素充能效率", "生命值", "攻击力", "防御力"]
 posName = ["生之花", "死之羽", "时之沙", "空之杯", "理之冠"]
 mainTagType = {
     "时之沙": ["生命值", "攻击力", "防御力", "元素精通", "元素充能效率"],
@@ -347,6 +348,12 @@ class Data:
 
     # 常量获取
 
+    # 获取属性词条枚举
+    def getEntryArray(self):
+        return entryArray
+
+    def getMainTagType(self):
+        return mainTagType
     # 获取圣遗物位置名称
     def getPosName(self):
         return posName
