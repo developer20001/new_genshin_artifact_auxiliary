@@ -305,7 +305,6 @@ class Data:
                         array['C'].append(tempItem)
 
             # 取出当前位置最大值
-            print(array)
             for suitKey in suit.keys():
                 suit[suitKey][posItem] = 0
                 if len(array[suitKey]) > 0:
