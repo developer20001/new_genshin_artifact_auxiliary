@@ -12,8 +12,8 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox
 )
 
-class SetWindow(QWidget):
 
+class SetWindow(QWidget):
     statusSignal = Signal(object)
 
     def __init__(self):
@@ -30,24 +30,17 @@ class SetWindow(QWidget):
         self.config = {}
 
         # 显示当前角色
-        self.heroNameLabel1 = QLabel('当前角色：')
-        self.heroNameLabel2 = QLabel("")
-
+        self.heroNameLabel = QLabel("")
         # 显示得分权重
-        self.entryName = []
-        self.entryNum = []
+        self.entryNum = {}
         for keyName in data.getEntryArray():
-            nameText = QLabel(keyName)
-            self.entryName.append(nameText)
-
             numText = QDoubleSpinBox()
             numText.setMinimum(0)
             numText.setMaximum(1)
             numText.setSingleStep(0.1)
             numText.setValue(0)
             numText.setAlignment(Qt.AlignRight)
-            self.entryNum.append(numText)
-
+            self.entryNum[keyName] = numText
         # 添加保存按钮
         self.saveButton = QPushButton('确认修改')
 
@@ -59,12 +52,13 @@ class SetWindow(QWidget):
 
         # 弹窗内容
         layout = QGridLayout()
-        layout.addWidget(self.heroNameLabel1, 1, 1)
-        layout.addWidget(self.heroNameLabel2, 1, 2)
-        for index in range(len(self.entryName)):
-            layout.addWidget(self.entryName[index],index+2,1)
-        for index in range(len(self.entryNum)):
-            layout.addWidget(self.entryNum[index], index+2,2)
+        layout.addWidget(QLabel('当前角色：'), 1, 1)
+        layout.addWidget(self.heroNameLabel, 1, 2)
+        counter = 0
+        for keyName in self.entryNum:
+            layout.addWidget(QLabel(keyName), counter + 2, 1)
+            layout.addWidget(self.entryNum[keyName], counter + 2, 2)
+            counter += 1
         layout.addWidget(self.saveButton, 9, 1, 1, 2)
         layout.addWidget(self.tipsLabel1, 10, 1, 1, 2)
         layout.addWidget(self.tipsLabel2, 11, 1, 1, 2)
@@ -73,29 +67,27 @@ class SetWindow(QWidget):
         # 注册按钮事件
         self.saveButton.clicked.connect(self.btn_save)
 
-    def update(self,character):
+    def update(self, character):
         self.character = character
         self.updateUI()
 
     def updateUI(self):
         herConfig = data.getCharacters()
-        entryArray = data.getEntryArray()
         # 兼容数据异常情况
-        if not self.character in herConfig or herConfig[self.character]=={}:
-            self.heroNameLabel2.setText("请正确的选择角色")
-            for index in range(len(entryArray)):
-                self.entryNum[index].setValue(0)
+        if not self.character in herConfig or herConfig[self.character] == {}:
+            self.heroNameLabel.setText("请正确的选择角色")
+            for keyName in self.entryNum:
+                self.entryNum[keyName].setValue(0)
         else:
-            self.heroNameLabel2.setText(self.character)
-            for index in range(len(entryArray)):
-                self.entryNum[index].setValue(herConfig[self.character][entryArray[index]])
-
+            self.heroNameLabel.setText(self.character)
+            for keyName in self.entryNum:
+                self.entryNum[keyName].setValue(herConfig[self.character][keyName])
 
     def btn_save(self):
         herConfig = data.getCharacters()
         tempConfig = {}
-        for index in  range(len(self.entryNum)):
-            tempConfig[self.entryName[index].text()] = self.entryNum[index].value()
+        for keyName in self.entryNum:
+            tempConfig[keyName] = self.entryNum[keyName].value()
         herConfig[self.character] = tempConfig
         data.setCharacters(herConfig)
         self.close()
