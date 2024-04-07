@@ -3,19 +3,20 @@
 import json, os, shutil
 import score
 
-# 路径常量
+# 配置文件
+suitConfig_path = "src/suitConfig.json"
+defaulCharacter_path = "src/character.json"
+# 用户文件
 folder = os.path.expanduser('~/Documents')
 folder = folder + '/keqing'
 character_path = folder + '/character.json'
 artifact_path = folder + '/artifacts.json'
 artifactOwner_path = folder + '/artifactOwner.json'
-suitConfig_path = "src/suitConfig.json"
-defaulCharacter_path = "src/character.json"
 archive_path = folder + '/archive.json'
 artifactScheme_path = folder + "/artifactScheme.json"
 
 # 数据常量
-entryArray = ["暴击率", "暴击伤害", "元素精通", "元素充能效率", "生命值", "攻击力", "防御力"]
+entryArray = ["暴击率", "暴击伤害", "攻击力", "生命值", "防御力", "元素精通", "元素充能效率"]
 posName = ["生之花", "死之羽", "时之沙", "空之杯", "理之冠"]
 mainTagType = {
     "时之沙": ["生命值", "攻击力", "防御力", "元素精通", "元素充能效率"],
