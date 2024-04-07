@@ -7,7 +7,6 @@ from extention import ExtendedComboBox
 from suit_result_window import SuitResultWindow
 from set_window import SetWindow
 
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
@@ -54,17 +53,14 @@ class SuitWindow(QWidget):
         for key in data.getSuitConfig():
             self.suitCombobox1.addItem(key)
             self.suitCombobox2.addItem(key)
-        self.mainTagNameArray = []
-        self.mainTagComboboxArray = []
+        self.mainTagCombobox = {}
         MainTagType = data.getMainTagType()
         for key in MainTagType:
-            mainTagName = QLabel(key)
             mainTagCombobox = ExtendedComboBox()
             mainTagCombobox.addItem("主属性选择")
             for tagItem in MainTagType[key]:
                 mainTagCombobox.addItem(tagItem)
-            self.mainTagNameArray.append(mainTagName)
-            self.mainTagComboboxArray.append(mainTagCombobox)
+            self.mainTagCombobox[key] = mainTagCombobox
         self.radiobtn1 = QRadioButton('仅未装备')
         self.radiobtn1.setChecked(True)
         self.radiobtn2 = QRadioButton('全部')
@@ -86,14 +82,18 @@ class SuitWindow(QWidget):
         layout.addWidget(self.suitCombobox2, 4, 2, 1, 2)
         layout.addWidget(QLabel('主要属性:'), 5, 0, 1, 1)
         layout.addWidget(QLabel('(不选默认不限制主词条)'), 5, 1, 1, 4)
-        for index in range(len(self.mainTagComboboxArray)):
-            layout.addWidget(self.mainTagNameArray[index], 6 + index, 1, 1, 2)
-            layout.addWidget(self.mainTagComboboxArray[index], 6 + index, 2, 1, 2)
+        index = 0
+        for key in self.mainTagCombobox:
+            layout.addWidget(QLabel(key), 6 + index, 1, 1, 2)
+            layout.addWidget(self.mainTagCombobox[key], 6 + index, 2, 1, 2)
+            index += 1
         layout.addWidget(QLabel('其他选择:'), 9, 0, 1, 1)
         layout.addWidget(self.radiobtn1, 10, 1, 1, 1)
         layout.addWidget(self.radiobtn2, 10, 2, 1, 1)
         layout.addWidget(self.startButton, 11, 0, 1, 4)
         self.setLayout(layout)
+
+        self.updateUI()
 
         # 注册事件
         self.openFileButton.clicked.connect(self.openFile)
@@ -114,18 +114,20 @@ class SuitWindow(QWidget):
 
     # 自定义方法
     def startRating(self):
-        needMainTag = {"生之花": "生命值", "死之羽": "攻击力"}
-        for index in range(len(self.mainTagNameArray)):
-            mainTagKey = self.mainTagNameArray[index].text()
-            mainTag = self.mainTagComboboxArray[index].currentText()
-            needMainTag[mainTagKey] = mainTag
 
         params = {}
-        params["character"] = self.character
-        params["heroConfig"] = data.getCharacters()[self.character]
         params["suitA"] = self.suitCombobox1.currentText()
         params["suitB"] = self.suitCombobox2.currentText()
+        needMainTag = {"生之花": "生命值", "死之羽": "攻击力"}
+        for key in self.mainTagCombobox:
+            mainTag = self.mainTagCombobox[key].currentText()
+            needMainTag[key] = mainTag
+            params[key] = mainTag
+        # 保存方案
+        data.setArtifactScheme(self.character, params)
         params["needMainTag"] = needMainTag
+        params["character"] = self.character
+        params["heroConfig"] = data.getCharacters()[self.character]
         params["selectType"] = self.selectType
 
         # 获取推荐数据
@@ -147,6 +149,18 @@ class SuitWindow(QWidget):
         self.character = self.heroNameCombobox.currentText()
         if self.setWindow:
             self.setWindow.update(self.character)
+        self.updateUI()
+
+    def updateUI(self):
+        indexObj = data.getIndexByCharacter(self.character)
+        for key in indexObj:
+            if key == "suitA":
+                self.suitCombobox1.setCurrentIndex(indexObj[key])
+            elif key == "suitB":
+                self.suitCombobox2.setCurrentIndex(indexObj[key])
+            else:
+                if key in self.mainTagCombobox:
+                    self.mainTagCombobox[key].setCurrentIndex(indexObj[key])
 
     # 设置按钮
     def updateData(self):
@@ -156,7 +170,7 @@ class SuitWindow(QWidget):
     def openFile(self):
         os.startfile(data.folder)
 
-    #切换为评分
+    # 切换为评分
     def swichMainWindow(self):
         from app import MainWindow
         window = MainWindow()

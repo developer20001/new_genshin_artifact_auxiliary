@@ -10,7 +10,9 @@ character_path = folder + '/character.json'
 artifact_path = folder + '/artifacts.json'
 artifactOwner_path = folder + '/artifactOwner.json'
 suitConfig_path = "src/suitConfig.json"
+defaulCharacter_path = "src/character.json"
 archive_path = folder + '/archive.json'
+artifactScheme_path = folder + "/artifactScheme.json"
 
 # 数据常量
 entryArray = ["暴击率", "暴击伤害", "元素精通", "元素充能效率", "生命值", "攻击力", "防御力"]
@@ -89,6 +91,8 @@ combinationType = {
         ["A", "B", "B", "A", "C"]
     ]
 }
+
+
 class Data:
     def __init__(self):
         self.artifacts = {'背包': {}, '角色': {}}
@@ -96,7 +100,7 @@ class Data:
         self.artifactOwnerList = {}
         self.suitConfig = {}
         self.characters = {}
-
+        self.artifactScheme = {}
         # 加载数据
         self.loadData()
 
@@ -110,9 +114,13 @@ class Data:
             if os.path.exists(artifactOwner_path):
                 with open(artifactOwner_path, 'r', encoding='utf-8') as fp:
                     self.artifactOwnerList = json.load(fp)
+            # 读取套装方案
+            if os.path.exists(artifactScheme_path):
+                with open(artifactScheme_path, 'r', encoding='utf-8') as fp:
+                    self.artifactScheme = json.load(fp)
             # 读取角色参数配置
             if os.path.exists(character_path):
-                with open('src/character.json', 'r', encoding='utf-8') as fp:
+                with open(defaulCharacter_path, 'r', encoding='utf-8') as fp:
                     default = json.load(fp)
                 with open(character_path, 'r', encoding='utf-8') as fp:
                     self.characters = json.load(fp)
@@ -144,7 +152,7 @@ class Data:
         return self.artifacts
 
     # 保存数据
-    def setArtifacts(self,newArtifacts):
+    def setArtifacts(self, newArtifacts):
         self.artifacts = newArtifacts
         with open(archive_path, 'w', encoding='utf-8') as fp:
             json.dump(self.artifacts, fp, ensure_ascii=False)
@@ -158,19 +166,19 @@ class Data:
         return self.characters
 
     # 通过id获取英雄配置
-    def getCharactersByCharacter(self,character):
+    def getCharactersByCharacter(self, character):
         config = {}
         if character in self.characters:
             config = self.characters[character]
         return config
 
     # 更新英雄配置
-    def setCharacters(self,newCharacters):
+    def setCharacters(self, newCharacters):
         self.characters = newCharacters
         with open(character_path, 'w', encoding='utf-8') as fp:
             json.dump(self.characters, fp, ensure_ascii=False)
 
-    def getArtifactOwner(self,character):
+    def getArtifactOwner(self, character):
         if character in self.artifactOwnerList:
             return self.artifactOwnerList[character]
         else:
@@ -346,22 +354,43 @@ class Data:
         else:
             return 0
 
-    # 常量获取
+    def getIndexByCharacter(self, character):
+        result = {"suitA": 0, "suitB": 0, "时之沙": 0, "空之杯": 0, "理之冠": 0}
+        if character in self.artifactScheme:
+            artifactSchemeItem = self.artifactScheme[character]
+            for key in artifactSchemeItem:
+                index = 0
+                if key == "suitA" or key == "suitB":
+                    suitKeyArray = list(self.suitConfig.keys())
+                    if artifactSchemeItem[key] in suitKeyArray:
+                        index = suitKeyArray.index(artifactSchemeItem[key]) + 1
+                elif key in posName:
+                    mainTagTypeArray = mainTagType[key]
+                    if artifactSchemeItem[key] in mainTagTypeArray:
+                        index = mainTagTypeArray.index(artifactSchemeItem[key]) + 1
+                result[key] = index
+        return result
 
+    def setArtifactScheme(self, character, params):
+        self.artifactScheme[character] = params
+        with open(artifactScheme_path, 'w', encoding='utf-8') as fp:
+            json.dump(self.artifactScheme, fp, ensure_ascii=False)
+
+    # 常量获取
     # 获取属性词条枚举
     def getEntryArray(self):
         return entryArray
 
     def getMainTagType(self):
         return mainTagType
+
     # 获取圣遗物位置名称
     def getPosName(self):
         return posName
+
     # 获取圣遗物类型配置
     def getMainTagType(self):
         return mainTagType
 
 
 data = Data()
-
-
