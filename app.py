@@ -2,7 +2,8 @@ import sys, os, requests, json
 import qdarktheme
 from pynput import keyboard
 
-import data, location, ocr, score
+from data import data
+import location, ocr, score
 from extention import OutsideMouseManager, ExtendedComboBox
 from paste_window import PasteWindow
 from suit_window import SuitWindow

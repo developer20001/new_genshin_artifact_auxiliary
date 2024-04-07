@@ -1,7 +1,7 @@
 '''圣遗物推荐参数选择弹窗'''
 
 import os
-import data
+from data import data
 from extention import ExtendedComboBox
 
 from suit_result_window import SuitResultWindow

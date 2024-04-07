@@ -1,7 +1,8 @@
 '''圣遗物推荐方案生成弹窗'''
 
 import os
-import data, score
+from data import data
+import score
 from extention import ExtendedComboBox
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
