@@ -241,15 +241,15 @@ class Data:
     # 推荐圣遗物
     def recommend(self, params):
         # 获取组合类型
-        if params["suit1"] == "选择套装" and params["suit2"] == "选择套装":
+        if params["suitA"] == "选择套装" and params["suitB"] == "选择套装":
             combinationKey = "5"
-        elif params["suit1"] == "选择套装" and params["suit2"] != "选择套装":
-            params["suit1"] = params["suit2"]
+        elif params["suitA"] == "选择套装" and params["suitB"] != "选择套装":
+            params["suitA"] = params["suitB"]
             combinationKey = "4+1"
-        elif params["suit1"] != "选择套装" and params["suit2"] == "选择套装":
+        elif params["suitA"] != "选择套装" and params["suitB"] == "选择套装":
             combinationKey = "4+1"
-        elif params["suit1"] != "选择套装" and params["suit2"] != "选择套装":
-            if params["suit1"] == params["suit2"]:
+        elif params["suitA"] != "选择套装" and params["suitB"] != "选择套装":
+            if params["suitA"] == params["suitB"]:
                 combinationKey = "4+1"
             else:
                 combinationKey = "2+2+1"
@@ -274,13 +274,14 @@ class Data:
                 if params["selectType"] == 1:
                     ownerCharacter = self.getOwnerCharacterByArtifactId(posItem, artifactKey)
                     if ownerCharacter and ownerCharacter != params["character"]:
-                        print("该装备已装备")
+                        # print("该装备已装备")
                         continue
 
                 # 限制二 对比主词条
-                if artifactValue["mainTag"] != params["needMainTag"][posItem]:
-                    # print("主词条不符合")
-                    continue
+                if params["needMainTag"][posItem] != "主属性选择":
+                    if artifactValue["mainTag"] != params["needMainTag"][posItem]:
+                        # print("主词条不符合")
+                        continue
 
                 # 开始筛选
                 tempItem = {}
@@ -291,19 +292,20 @@ class Data:
                 if combinationKey == "5":
                     array['C'].append(tempItem)
                 elif combinationKey == "4+1":
-                    if artifactValue["artifactName"] == self.suitConfig[params["suit1"]][posItem]:
+                    if artifactValue["artifactName"] == self.suitConfig[params["suitA"]][posItem]:
                         array["A"].append(tempItem)
                     else:
                         array['C'].append(tempItem)
                 elif combinationKey == "2+2+1":
-                    if artifactValue["artifactName"] == self.suitConfig[params["suit1"]][posItem]:
+                    if artifactValue["artifactName"] == self.suitConfig[params["suitA"]][posItem]:
                         array["A"].append(tempItem)
-                    elif artifactValue["artifactName"] == self.suitConfig[params["suit2"]][posItem]:
+                    elif artifactValue["artifactName"] == self.suitConfig[params["suitB"]][posItem]:
                         array["B"].append(tempItem)
                     else:
                         array['C'].append(tempItem)
 
             # 取出当前位置最大值
+            print(array)
             for suitKey in suit.keys():
                 suit[suitKey][posItem] = 0
                 if len(array[suitKey]) > 0:

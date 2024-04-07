@@ -54,8 +54,6 @@ class SuitWindow(QWidget):
         for key in data.getSuitConfig():
             self.suitCombobox1.addItem(key)
             self.suitCombobox2.addItem(key)
-        self.mainTagTips = QLabel('(必选！！！)')
-        self.mainTagTips.setStyleSheet("color:red;")
         self.mainTagNameArray = []
         self.mainTagComboboxArray = []
         MainTagType = data.getMainTagType()
@@ -71,8 +69,6 @@ class SuitWindow(QWidget):
         self.radiobtn1.setChecked(True)
         self.radiobtn2 = QRadioButton('全部')
         self.startButton = QPushButton('生成方案')
-        # self.tipsLabel = QLabel('主要属性为必选项！！！')
-        # self.tipsLabel.setStyleSheet("color:red;qproperty-alignment: 'AlignCenter';")
 
         # 弹窗内容
         layout = QGridLayout()
@@ -83,12 +79,13 @@ class SuitWindow(QWidget):
         layout.addWidget(self.heroNameCombobox, 1, 1, 1, 2)
         layout.addWidget(self.setButton, 1, 3, 1, 1)
         layout.addWidget(QLabel('套装类型:'), 2, 0, 1, 1)
+        # layout.addWidget(QLabel('(选一个4+1,选两个2+2+1,不选散搭)'), 2, 1, 1, 4)
         layout.addWidget(QLabel('套装A'), 3, 1, 1, 1)
         layout.addWidget(self.suitCombobox1, 3, 2, 1, 2)
         layout.addWidget(QLabel('套装B'), 4, 1, 1, 1)
         layout.addWidget(self.suitCombobox2, 4, 2, 1, 2)
         layout.addWidget(QLabel('主要属性:'), 5, 0, 1, 1)
-        layout.addWidget(self.mainTagTips, 5, 1, 1, 4)
+        layout.addWidget(QLabel('(不选默认不限制主词条)'), 5, 1, 1, 4)
         for index in range(len(self.mainTagComboboxArray)):
             layout.addWidget(self.mainTagNameArray[index], 6 + index, 1, 1, 2)
             layout.addWidget(self.mainTagComboboxArray[index], 6 + index, 2, 1, 2)
@@ -96,7 +93,6 @@ class SuitWindow(QWidget):
         layout.addWidget(self.radiobtn1, 10, 1, 1, 1)
         layout.addWidget(self.radiobtn2, 10, 2, 1, 1)
         layout.addWidget(self.startButton, 11, 0, 1, 4)
-        # layout.addWidget(self.tipsLabel, 12, 0, 1, 4)
         self.setLayout(layout)
 
         # 注册事件
@@ -122,28 +118,22 @@ class SuitWindow(QWidget):
         for index in range(len(self.mainTagNameArray)):
             mainTagKey = self.mainTagNameArray[index].text()
             mainTag = self.mainTagComboboxArray[index].currentText()
-            if mainTag == "主属性选择":
-                self.mainTagTips.setText(mainTagKey.replace(":", " ") + "主要属性未选择！！！")
-                return 0
             needMainTag[mainTagKey] = mainTag
 
         params = {}
         params["character"] = self.character
         params["heroConfig"] = data.getCharacters()[self.character]
-        params["suit1"] = self.suitCombobox1.currentText()
-        params["suit2"] = self.suitCombobox2.currentText()
+        params["suitA"] = self.suitCombobox1.currentText()
+        params["suitB"] = self.suitCombobox2.currentText()
         params["needMainTag"] = needMainTag
         params["selectType"] = self.selectType
 
         # 获取推荐数据
         result = data.recommend(params)
         if result:
-            self.mainTagTips.setText("(必选！！！)")
             self.suitResultWindow = SuitResultWindow()
             self.suitResultWindow.update(self.character, result)
             self.suitResultWindow.show()
-        else:
-            self.mainTagTips.setText("没有合适的方案！！！")
 
     # 单选框按钮
     def radiobtn_state(self, btn):
