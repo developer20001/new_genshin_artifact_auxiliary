@@ -189,8 +189,8 @@ class MainWindow(QMainWindow):
         # 全局热键
         self.hotkey()
         # 数据插入模式
-        self.insert = False
-        self.insert_mode()
+        # self.insert = False
+        # self.insert_mode()
 
     # 单选框面板选择事件
     def radiobtn_state(self, btn):
