@@ -393,5 +393,7 @@ class Data:
     def getMainTagType(self):
         return mainTagType
 
-
+    # 获取配置文件夹路径
+    def getUserDataPath(self):
+        return folder
 data = Data()

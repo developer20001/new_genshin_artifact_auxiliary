@@ -168,7 +168,7 @@ class SuitWindow(QWidget):
 
     # 打开文件夹
     def openFile(self):
-        os.startfile(data.folder)
+        os.startfile(data.getUserDataPath())
 
     # 切换为评分
     def swichMainWindow(self):
