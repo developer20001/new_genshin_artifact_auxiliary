@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QLineEdit
 )
 
+myappid = 'v0.8.0'
 
 # 主窗口
 class MainWindow(QMainWindow):
@@ -479,9 +480,6 @@ class MainWindow(QMainWindow):
         self.setWindow.update(self.character)
         self.setWindow.show()
 def main():
-    global myappid
-    myappid = 'v0.8.0'
-
     # 任务栏图标问题
     try:
         from ctypes import windll  # Only exists on Windows.
