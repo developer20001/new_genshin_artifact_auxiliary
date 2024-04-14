@@ -124,7 +124,9 @@ class SuitWindow(QWidget):
             needMainTag[key] = mainTag
             params[key] = mainTag
         # 保存方案
-        data.setArtifactScheme(self.character, params)
+        saveParams = params
+        data.setArtifactScheme(self.character, saveParams)
+
         params["needMainTag"] = needMainTag
         params["character"] = self.character
         params["heroConfig"] = data.getCharacters()[self.character]
