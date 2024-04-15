@@ -25,7 +25,7 @@ mainTagType = {
     "理之冠": ["生命值", "攻击力", "防御力", "元素精通", "暴击率", "暴击伤害", "治疗加成"],
 }
 combinationType = {
-    "5": [
+    "1+1+1+1+1": [
         ["C", "C", "C", "C", "C"]
     ],
     "4+1": [
@@ -252,7 +252,7 @@ class Data:
     def recommend(self, params):
         # 获取组合类型
         if params["suitA"] == "选择套装" and params["suitB"] == "选择套装":
-            combinationKey = "5"
+            combinationKey = "1+1+1+1+1"
         elif params["suitA"] == "选择套装" and params["suitB"] != "选择套装":
             params["suitA"] = params["suitB"]
             combinationKey = "4+1"
@@ -264,7 +264,7 @@ class Data:
             else:
                 combinationKey = "2+2+1"
         else:
-            combinationKey = "5"
+            combinationKey = "1+1+1+1+1"
 
         # 筛选评分最大值套装
         suit = {
@@ -299,7 +299,7 @@ class Data:
                 tempItem["artifactName"] = artifactValue["artifactName"]
                 tempItem["score"] = score.cal_score(artifactValue["normalTags"], params["heroConfig"])[1]
 
-                if combinationKey == "5":
+                if combinationKey == "1+1+1+1+1":
                     array['C'].append(tempItem)
                 elif combinationKey == "4+1":
                     if artifactValue["artifactName"] == self.suitConfig[params["suitA"]][posItem]:

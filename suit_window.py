@@ -123,6 +123,7 @@ class SuitWindow(QWidget):
             mainTag = self.mainTagCombobox[key].currentText()
             needMainTag[key] = mainTag
             params[key] = mainTag
+
         # 保存方案
         saveParams = params
         data.setArtifactScheme(self.character, saveParams)
