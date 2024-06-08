@@ -1,6 +1,7 @@
 '''图像识别、文字处理，考虑多种ocr方式'''
 
 from PIL import ImageGrab, Image
+from rapidocr_onnxruntime import RapidOCR
 import re
 
 def rapidocr(x, y, w, h):
@@ -19,19 +20,17 @@ def rapidocr(x, y, w, h):
             value；词条数值
             如：{'防御力': 23.0, '元素充能效率': 5.8, '暴击伤害': 5.4}
     '''
-    from rapidocr_onnxruntime import RapidOCR
 
-    # 截屏与ocr识别
-    img = ImageGrab.grab(bbox = (x, y, x + w, y + h))
-    img.save('src/grab.png')
-    ocr = RapidOCR()
-    result, elapse = ocr('src/grab.png', use_det=True, use_cls=False, use_rec=True)
-    result = [item [1] for item in result]
+    result = orcImage(x, y, w, h)
+    if not result:
+        print('识别失败')
+        return False
+    # print(result)
 
     # 千位符（含误识别的.）兼容
     pattern_thou = '\d\.\d{3}|\d\,\d{3}'
     txt = [re.sub(pattern_thou, item.replace(',', '').replace('.', ''), item) for item in result]
-    # print(txt)
+    print(txt)
 
     name = txt[0].\
         replace('明威之', '明威之镡').\
@@ -99,6 +98,41 @@ def rapidocr(x, y, w, h):
     
     print(basic, result)
     return basic, result
+
+
+def orcImage(x, y, w, h):
+    result = False
+    ocr = RapidOCR()
+    tryTimes = 3
+    flag = True
+    while flag:
+        tryTimes -= 1
+
+        # 截屏与ocr识别
+        img = ImageGrab.grab(bbox=(x, y, x + w, y + h))
+        img.save('src/grab.png')
+        result, elapse = ocr('src/grab.png', use_det=True, use_cls=False, use_rec=True, text_score=0.35)
+        print(result)
+        result = [item[1] for item in result]
+        checkResult = check_data_compliance(result)
+        if not checkResult:
+            result = False
+        if tryTimes <= 0 or checkResult:
+            flag = False
+    return result
+def check_data_compliance(data):
+    # print(data)
+    if len(data) != 9:
+        print("数据长度不符合要求")
+        return False
+    if "" in data:
+        print("数据中存在空值")
+        return False
+    if "0" in data:
+        print("数据中存在0")
+        return False
+    return True
+
 
 if __name__ == '__main__':
     # 截图坐标

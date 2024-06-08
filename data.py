@@ -1,7 +1,6 @@
 '''个人数据数据处理'''
 
 import json, os, shutil
-import score
 
 # 配置文件
 suitConfig_path = "src/suitConfig.json"
@@ -12,7 +11,6 @@ folder = folder + '/Genshin'
 character_path = folder + '/character.json'
 artifact_path = folder + '/artifacts.json'
 artifactOwner_path = folder + '/artifactOwner.json'
-archive_path = folder + '/archive.json'
 artifactScheme_path = folder + "/artifactScheme.json"
 
 # 数据常量
@@ -92,11 +90,34 @@ combinationType = {
         ["A", "B", "B", "A", "C"]
     ]
 }
+coefficient = {
+    '暴击率': 2,
+    '暴击伤害': 1,
+    '攻击力百分比': 1.331429,
+    '生命值百分比': 1.331429,
+    '防御力百分比': 1.066362,
+    '攻击力': 0.199146,
+    '生命值': 0.012995,
+    '防御力': 0.162676,
+    '元素精通': 0.332857,
+    '元素充能效率': 1.197943
+}
+average = {
+    '暴击率': 3.3,
+    '暴击伤害': 6.6,
+    '攻击力百分比': 4.975,
+    '生命值百分比': 4.975,
+    '防御力百分比': 6.2,
+    '攻击力': 16.75,
+    '生命值': 254,
+    '防御力': 19.75,
+    '元素精通': 19.75,
+    '元素充能效率': 5.5
+}
 
 
 class Data:
     def __init__(self):
-        self.artifacts = {'背包': {}, '角色': {}}
         self.artifactList = {"生之花": {}, "死之羽": {}, "时之沙": {}, "空之杯": {}, "理之冠": {}}
         self.artifactOwnerList = {}
         self.suitConfig = {}
@@ -135,10 +156,6 @@ class Data:
                 shutil.copy('src/character.json', character_path)
                 with open(character_path, 'r', encoding='utf-8') as fp:
                     self.characters = json.load(fp)
-            # 读取保存数据
-            if os.path.exists(archive_path):
-                with open(archive_path, 'r', encoding='utf-8') as fp:
-                    self.artifacts = json.load(fp)
         else:
             os.makedirs(folder)
             shutil.copy('src/character.json', character_path)
@@ -148,16 +165,6 @@ class Data:
         with open(suitConfig_path, 'r', encoding='utf-8') as fp:
             self.suitConfig = json.load(fp)
 
-    # 获取保存数据
-    def getArtifacts(self):
-        return self.artifacts
-
-    # 保存数据
-    def setArtifacts(self, newArtifacts):
-        self.artifacts = newArtifacts
-        with open(archive_path, 'w', encoding='utf-8') as fp:
-            json.dump(self.artifacts, fp, ensure_ascii=False)
-
     # 获取圣遗物套装配置
     def getSuitConfig(self):
         return self.suitConfig
@@ -165,6 +172,9 @@ class Data:
     # 获取英雄配置
     def getCharacters(self):
         return self.characters
+
+    def getArtifactList(self):
+        return self.artifactList
 
     # 通过id获取英雄配置
     def getCharactersByCharacter(self, character):
@@ -248,6 +258,13 @@ class Data:
             json.dump(self.artifactList, fp, ensure_ascii=False)
             print("保存成功")
 
+    def getCharacterIndex(self, character):
+        resultIndex = 0
+        if character in self.characters:
+            characterKeyArray = list(self.characters.keys())
+            resultIndex = characterKeyArray.index(character)
+        return resultIndex
+
     # 推荐圣遗物
     def recommend(self, params):
         # 获取组合类型
@@ -288,8 +305,9 @@ class Data:
                         continue
 
                 # 限制二 对比主词条
-                if params["needMainTag"][posItem] != "主属性选择":
-                    if artifactValue["mainTag"] != params["needMainTag"][posItem]:
+                if posItem in mainTagType:
+                    # print(params["needMainTag"][posItem])
+                    if artifactValue["mainTag"] not in params["needMainTag"][posItem]:
                         # print("主词条不符合")
                         continue
 
@@ -297,7 +315,7 @@ class Data:
                 tempItem = {}
                 tempItem["artifactID"] = artifactKey
                 tempItem["artifactName"] = artifactValue["artifactName"]
-                tempItem["score"] = score.cal_score(artifactValue["normalTags"], params["heroConfig"])[1]
+                tempItem["score"] = self.cal_score(artifactValue["normalTags"], params["heroConfig"])[1]
 
                 if combinationKey == "1+1+1+1+1":
                     array['C'].append(tempItem)
@@ -320,6 +338,8 @@ class Data:
                 if len(array[suitKey]) > 0:
                     array[suitKey].sort(key=lambda x: x["score"], reverse=True)
                     suit[suitKey][posItem] = array[suitKey][0]
+
+        print(suit)
 
         # 根据组合类型选出来总分最大组合
         scoreArray = []
@@ -349,27 +369,23 @@ class Data:
             scoreItem["scoreSum"] = round(scoreSum, 1)
             scoreArray.append(scoreItem)
         scoreArray.sort(key=lambda x: x["scoreSum"], reverse=True)
-        print(scoreArray)
+        # print(scoreArray)
         if len(scoreArray) > 0:
             return scoreArray
         else:
-            return 0
+            return False
 
     def getIndexByCharacter(self, character):
-        result = {"suitA": 0, "suitB": 0, "时之沙": 0, "空之杯": 0, "理之冠": 0}
+        result = {"suitA": 0, "suitB": 0, "时之沙": [], "空之杯": [], "理之冠": []}
         if character in self.artifactScheme:
             artifactSchemeItem = self.artifactScheme[character]
             for key in artifactSchemeItem:
-                index = 0
                 if key == "suitA" or key == "suitB":
                     suitKeyArray = list(self.suitConfig.keys())
                     if artifactSchemeItem[key] in suitKeyArray:
-                        index = suitKeyArray.index(artifactSchemeItem[key]) + 1
+                        result[key] = suitKeyArray.index(artifactSchemeItem[key]) + 1
                 elif key in posName:
-                    mainTagTypeArray = mainTagType[key]
-                    if artifactSchemeItem[key] in mainTagTypeArray:
-                        index = mainTagTypeArray.index(artifactSchemeItem[key]) + 1
-                result[key] = index
+                    result[key] = artifactSchemeItem[key]
         return result
 
     def setArtifactScheme(self, character, params):
@@ -389,11 +405,61 @@ class Data:
     def getPosName(self):
         return posName
 
-    # 获取圣遗物类型配置
-    def getMainTagType(self):
-        return mainTagType
+    # 获取啥啊这是
+    def getCoefficient(self):
+        return coefficient
 
     # 获取配置文件夹路径
     def getUserDataPath(self):
         return folder
+
+    def cal_score(self, ocr_result_sub, config):
+        scores, sums, powerupArray, entriesSum = self.score(ocr_result_sub, config)
+        return scores, sums, powerupArray, entriesSum
+
+    def score2(self, ocr_result_sub, character="全属性"):
+        config = self.characters[character]
+        scores, sums, powerupArray, entriesSum = self.score(ocr_result_sub, config)
+        return sums
+
+
+    def score(self, ocr_result_sub, config):
+        scores = []
+        powerupArray = []
+        sums = 0
+        entriesSum = 0
+
+        for key, value in ocr_result_sub.items():
+
+            # 兼容角色配置未区分百分比的情况
+            if key == '生命值百分比' or key == '攻击力百分比' or key == '防御力百分比':
+                key_s = key[:3]
+            else:
+                key_s = key
+
+            # key值存在误识别情况，则判定为0
+            try:
+                score = round(value * config[key_s] * coefficient[key], 1)
+            except:
+                score = 0
+            scores.append(score)
+            sums += score
+
+            # 计算强化次数
+            try:
+                powerup = round(value / average[key]) - 1
+            except:
+                powerup = 0
+            powerupArray.append(powerup)
+
+            # 计算有效词条数量
+            if key_s in config and config[key_s] > 0:
+                entries = value / average[key]
+                # print(key, entries)
+                entriesSum += entries
+
+        # print(scores, round(sums, 1), powerupArray, round(entriesSum, 1))
+        return scores, round(sums, 1), powerupArray, round(entriesSum, 1)
+
+
 data = Data()

@@ -2,13 +2,11 @@
 
 import os
 from data import data
-import score
 from extention import ExtendedComboBox
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QLabel,
-    QRadioButton,
     QPushButton,
     QWidget,
     QGridLayout
@@ -71,8 +69,8 @@ class SuitResultWindow(QWidget):
             layout.addWidget(self.artifactScoreSubLabel[posItem], 1 + 3 * counter + 1, 5, 2, 1)
             layout.addWidget(QLabel(" "), 4 + 3 * counter, 0, 1, 4)
             counter += 1
-        layout.addWidget(self.equipTips, 16, 0, 1, 10)
-        layout.addWidget(self.equipButton, 17, 0, 1, 10)
+        layout.addWidget(self.equipTips, 100, 0, 1, 10)
+        layout.addWidget(self.equipButton, 101, 0, 1, 10)
         self.setLayout(layout)
 
         # 注册事件
@@ -100,7 +98,7 @@ class SuitResultWindow(QWidget):
                 oldArtifactItem = data.getArtifactItem(posItem, oldArtifactsData[posItem])
                 oldScore = 0
                 if "normalTags" in oldArtifactItem:
-                    oldScore = score.cal_score(oldArtifactItem["normalTags"], config)[1]
+                    oldScore = data.cal_score(oldArtifactItem["normalTags"], config)[1]
                 self.artifactScoreLabel1[posItem].setText(str(oldScore))
 
             if posItem in newArtifactsData:
@@ -108,7 +106,7 @@ class SuitResultWindow(QWidget):
                 newArtifactItem = data.getArtifactItem(posItem, newArtifactsData[posItem])
                 newScore = 0
                 if "normalTags" in newArtifactItem:
-                    newScore = score.cal_score(newArtifactItem["normalTags"], config)[1]
+                    newScore = data.cal_score(newArtifactItem["normalTags"], config)[1]
                 self.artifactScoreLabel2[posItem].setText(str(newScore))
 
                 ownerCharacter = data.getOwnerCharacterByArtifactId(posItem, newArtifactsData[posItem])
@@ -120,7 +118,7 @@ class SuitResultWindow(QWidget):
 
             if newOwnerStr != "无人装备" and newOwnerStr != self.character:
                 newOwnerconfig = data.getCharactersByCharacter(newOwnerStr)
-                newOwnerScore = score.cal_score(newArtifactItem["normalTags"], newOwnerconfig)[1]
+                newOwnerScore = data.cal_score(newArtifactItem["normalTags"], newOwnerconfig)[1]
                 self.artifactOwnerLabel1[posItem].setText(str(newOwnerScore))
             else:
                 self.artifactOwnerLabel1[posItem].setText("")
