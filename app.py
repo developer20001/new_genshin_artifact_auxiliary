@@ -290,7 +290,7 @@ class MainWindow(QMainWindow):
                 self.strengthen[i].setText("+0")
 
         # 自动保存圣遗物
-        data.saveArtifactList(self.artifact[str(self.id)],)
+        data.saveArtifactList(self.artifact[str(self.id)])
 
     # 刷新圣遗物贴图（识别、修改后确认、加载本地数据,后于主面板更新）
     def fresh_paste_window(self):
