@@ -345,7 +345,7 @@ class Data:
                     array[suitKey].sort(key=lambda x: x["score"], reverse=True)
                     suit[suitKey][posItem] = array[suitKey][0]
 
-        print(suit)
+        # print(suit)
 
         # 根据组合类型选出来总分最大组合
         scoreArray = []
@@ -468,4 +468,35 @@ class Data:
         return scores, round(sums, 1), powerupArray, round(entriesSum, 1)
 
 
+    def checkUpdate(self):
+        # 检查是否有装备可以更新
+        result = []
+        for owner in self.artifactOwnerList:
+            scheme = self.artifactScheme[owner]
+
+            params = {}
+            params["suitA"] = scheme["suitA"]
+            params["suitB"] = scheme["suitB"]
+            params["needMainTag"] ={
+                "时之沙": scheme["时之沙"],
+                "空之杯": scheme["空之杯"],
+                "理之冠": scheme["理之冠"],
+            }
+            params["character"] = owner
+            params["heroConfig"] = self.characters[owner]
+            params["selectType"] = 1
+            recommendResult = self.recommend(params)
+
+            if recommendResult:
+                new = recommendResult[0]["combinationName"]
+                old = self.artifactOwnerList[owner]
+                for pos in posName:
+                    if new[pos] != old[pos]:
+                        result.append(owner)
+                        break
+            else:
+                # 没有推荐结果
+                print("没有推荐结果")
+                pass
+        return result
 data = Data()

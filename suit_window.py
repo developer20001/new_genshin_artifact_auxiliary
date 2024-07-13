@@ -42,6 +42,8 @@ class SuitWindow(QWidget):
         self.openFileButton = QPushButton('打开文件')
         self.dataUpdateButton = QPushButton('更新数据')
         self.mainButton = QPushButton('圣遗物评分→')
+        self.checkButton = QPushButton('检查更新')
+
         self.heroNameCombobox = ExtendedComboBox()
         for herName in data.getCharacters():
             self.heroNameCombobox.addItem(herName)
@@ -63,32 +65,37 @@ class SuitWindow(QWidget):
         self.radiobtn1.setChecked(True)
         self.radiobtn2 = QRadioButton('全部')
         self.startButton = QPushButton('生成方案')
+        self.tipsText = QLabel('提示文本')
 
         # 弹窗内容
         layout = QGridLayout()
         layout.addWidget(self.openFileButton, 0, 0, 1, 1)
         layout.addWidget(self.dataUpdateButton, 0, 1, 1, 1)
         layout.addWidget(self.mainButton, 0, 2, 1, 2)
-        layout.addWidget(QLabel('当前角色：'), 1, 0, 1, 1)
-        layout.addWidget(self.heroNameCombobox, 1, 1, 1, 2)
-        layout.addWidget(self.setButton, 1, 3, 1, 1)
-        layout.addWidget(QLabel('套装类型:'), 2, 0, 1, 1)
+        layout.addWidget(self.checkButton, 1, 0, 1, 4)
+
+        layout.addWidget(QLabel('当前角色：'), 11, 0, 1, 1)
+        layout.addWidget(self.heroNameCombobox, 11, 1, 1, 2)
+        layout.addWidget(self.setButton, 11, 3, 1, 1)
+        layout.addWidget(QLabel('套装类型:'), 12, 0, 1, 1)
         # layout.addWidget(QLabel('(选一个4+1,选两个2+2+1,不选散搭)'), 2, 1, 1, 4)
-        layout.addWidget(QLabel('套装A'), 3, 1, 1, 1)
-        layout.addWidget(self.suitCombobox1, 3, 2, 1, 2)
-        layout.addWidget(QLabel('套装B'), 4, 1, 1, 1)
-        layout.addWidget(self.suitCombobox2, 4, 2, 1, 2)
-        layout.addWidget(QLabel('主要属性:'), 5, 0, 1, 1)
-        layout.addWidget(QLabel('(不选默认不限制主词条)'), 5, 1, 1, 4)
+        layout.addWidget(QLabel('套装A'), 13, 1, 1, 1)
+        layout.addWidget(self.suitCombobox1, 13, 2, 1, 2)
+        layout.addWidget(QLabel('套装B'), 14, 1, 1, 1)
+        layout.addWidget(self.suitCombobox2, 14, 2, 1, 2)
+        layout.addWidget(QLabel('主要属性:'), 15, 0, 1, 1)
+        layout.addWidget(QLabel('(不选默认不限制主词条)'), 15, 1, 1, 4)
         index = 0
         for key in self.mainTagCombobox:
-            layout.addWidget(QLabel(key), 6 + index, 1, 1, 2)
-            layout.addWidget(self.mainTagCombobox[key], 6 + index, 2, 1, 2)
+            layout.addWidget(QLabel(key), 16 + index, 1, 1, 2)
+            layout.addWidget(self.mainTagCombobox[key], 16 + index, 2, 1, 2)
             index += 1
-        layout.addWidget(QLabel('其他选择:'), 9, 0, 1, 1)
-        layout.addWidget(self.radiobtn1, 10, 1, 1, 1)
-        layout.addWidget(self.radiobtn2, 10, 2, 1, 1)
-        layout.addWidget(self.startButton, 11, 0, 1, 4)
+        layout.addWidget(QLabel('其他选择:'), 19, 0, 1, 1)
+        layout.addWidget(self.radiobtn1, 20, 1, 1, 1)
+        layout.addWidget(self.radiobtn2, 20, 2, 1, 1)
+        layout.addWidget(self.startButton, 21, 0, 1, 4)
+        layout.addWidget(self.tipsText, 22, 0, 1, 4, Qt.AlignCenter)
+
         self.setLayout(layout)
 
         self.updateUI()
@@ -102,6 +109,7 @@ class SuitWindow(QWidget):
         self.radiobtn2.toggled.connect(lambda: self.radiobtn_state(self.radiobtn2))
         self.startButton.clicked.connect(self.startRating)
         self.setButton.clicked.connect(self.openSetWindow)
+        self.checkButton.clicked.connect(self.checkButtonClicked)
 
     def closeEvent(self, event):
         # print("关闭窗口")
@@ -192,3 +200,15 @@ class SuitWindow(QWidget):
         self.setWindow = SetWindow()
         self.setWindow.update(self.character)
         self.setWindow.show()
+
+
+    def checkButtonClicked(self):
+        updateArray = data.checkUpdate()
+
+        print(updateArray)
+        tipsStr = ""
+        if len(updateArray)>0:
+            tipsStr = "、".join(updateArray)+" 需要更新"
+        else:
+            tipsStr = "没有需要更新的套装"
+        self.tipsText.setText(tipsStr)

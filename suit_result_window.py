@@ -22,7 +22,7 @@ class SuitResultWindow(QWidget):
         self.setWindowIcon(QIcon(os.path.join(os.path.dirname(__file__), 'src/keqing.ico')))
         self.setWindowTitle("生成方案")
         self.setFocusPolicy(Qt.StrongFocus)
-        self.move(0, 400)
+        self.move(0, 450)
 
         # 初始化变量
         self.character = "全属性"
